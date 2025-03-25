@@ -1,5 +1,5 @@
 name: carlogix_mobile
-description: "A new Flutter project."
+description: "A car service management application"
 publish_to: 'none'
 version: 0.1.0
 
@@ -21,6 +21,19 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1  # Updated version
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo/logo.png"  # Path to your logo file
+  remove_alpha_ios: true  # Optional: removes transparency for iOS icons
+  web:
+    generate: false
+  windows:
+    generate: false
+  macos:
+    generate: false
 
 flutter:
   uses-material-design: true
