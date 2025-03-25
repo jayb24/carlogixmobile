@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "486852871413",
+    "project_id": "carlogix-auth",
+    "storage_bucket": "carlogix-auth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:486852871413:android:f0304bbe93cc9c1edd71bc",
+        "android_client_info": {
+          "package_name": "com.example.carlogix_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP5myquCtW-K4zaUf-nye6VRBVFlmPdVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
