@@ -1,4 +1,3 @@
-import 'package:carlogix_mobile/pages/login/login.dart';
 import 'package:carlogix_mobile/services/auth_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -15,20 +14,25 @@ class Signup extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: _signin(context),
+      bottomNavigationBar: _loginLink(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        toolbarHeight: 50,
+        toolbarHeight: 100,
+        // Keep the leading back button for signup page
+        iconTheme: const IconThemeData(
+          color: Colors.black, // Set the back arrow color
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-         padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Center(
                 child: Text(
-                  'Register Account',
+                  'Create Account',
                   style: GoogleFonts.raleway(
                     textStyle: const TextStyle(
                       color: Colors.black,
@@ -38,20 +42,19 @@ class Signup extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 80,),
-               _emailAddress(),
-               const SizedBox(height: 20,),
-               _password(),
-               const SizedBox(height: 50,),
-               _signup(context),
+              const SizedBox(height: 80),
+              _emailAddress(),
+              const SizedBox(height: 20),
+              _password(),
+              const SizedBox(height: 50),
+              _signup(context),
             ],
           ),
-
+        ),
       ),
-      )
     );
   }
-
+  
   Widget _emailAddress() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -67,18 +70,18 @@ class Signup extends StatelessWidget {
             )
           ),
         ),
-        const SizedBox(height: 16,),
+        const SizedBox(height: 16),
         TextField(
           controller: _emailController,
           decoration: InputDecoration(
             filled: true,
-            hintText: 'mahdiforwork@gmail.com',
+            hintText: 'your-email@gmail.com',
             hintStyle: const TextStyle(
               color: Color(0xff6A6A6A),
               fontWeight: FontWeight.normal,
               fontSize: 14
             ),
-            fillColor: const Color(0xffF7F7F9) ,
+            fillColor: const Color(0xffF7F7F9),
             border: OutlineInputBorder(
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(14)
@@ -104,13 +107,13 @@ class Signup extends StatelessWidget {
             )
           ),
         ),
-        const SizedBox(height: 16,),
+        const SizedBox(height: 16),
         TextField(
-          controller: _passwordController,
           obscureText: true,
+          controller: _passwordController,
           decoration: InputDecoration(
             filled: true,
-            fillColor: const Color(0xffF7F7F9) ,
+            fillColor: const Color(0xffF7F7F9),
             border: OutlineInputBorder(
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(14)
@@ -124,55 +127,57 @@ class Signup extends StatelessWidget {
   Widget _signup(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff0D6EFD),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          minimumSize: const Size(double.infinity, 60),
-          elevation: 0,
+        backgroundColor: const Color.fromARGB(255, 219, 21, 21),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        minimumSize: const Size(double.infinity, 60),
+        elevation: 0,
       ),
       onPressed: () async {
-       await AuthService().signup(
+        await AuthService().signup(
           email: _emailController.text,
           password: _passwordController.text,
           context: context
         );
       },
-      child: const Text("Sign Up"),
+      child: const Text(
+        "Create Account",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.normal,
+          fontSize: 16
+        ),
+      ),
     );
   }
 
-  Widget _signin(BuildContext context) {
+  Widget _loginLink(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 40),
       child: RichText(
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.center, // Center align the text
         text: TextSpan(
           children: [
             const TextSpan(
-                text: "Already Have Account? ",
-                style: TextStyle(
-                  color: Color(0xff6A6A6A),
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16
-                ),
+              text: "Already have an account? ",
+              style: TextStyle(
+                color: Color(0xff6A6A6A),
+                fontWeight: FontWeight.normal,
+                fontSize: 16
               ),
-              TextSpan(
-                text: "Log In",
-                style: const TextStyle(
-                    color: Color(0xff1A1D1E),
-                    fontWeight: FontWeight.normal,
-                    fontSize: 16
-                  ),
-                  recognizer: TapGestureRecognizer()..onTap = () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Login()
-                      ),
-                    );
-                  }
+            ),
+            TextSpan(
+              text: "Log In",
+              style: const TextStyle(
+                color: Color(0xff1A1D1E),
+                fontWeight: FontWeight.normal,
+                fontSize: 16
               ),
+              recognizer: TapGestureRecognizer()..onTap = () {
+                Navigator.pop(context); // Just go back to login page
+              }
+            ),
           ]
         )
       ),

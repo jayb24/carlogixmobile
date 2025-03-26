@@ -1,4 +1,3 @@
-
 import 'package:carlogix_mobile/pages/signup/signup.dart';
 import 'package:carlogix_mobile/services/auth_service.dart';
 import 'package:flutter/gestures.dart';
@@ -21,34 +20,27 @@ class Login extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 100,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Container(
-            margin: const EdgeInsets.only(left: 10),
-            decoration: const BoxDecoration(
-              color: Color(0xffF7F7F9),
-              shape: BoxShape.circle
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
+        // Remove the leading back button
+        automaticallyImplyLeading: false, // This line removes the automatic back button
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-         padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              // Logo Image
+              Center(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 120, // Adjust size as needed
+                  height: 60, // Adjust size as needed
+                ),
+              ),
+              const SizedBox(height: 20),
               Center(
                 child: Text(
-                  'Hello Again',
+                  'Welcome Back',
                   style: GoogleFonts.raleway(
                     textStyle: const TextStyle(
                       color: Colors.black,
@@ -58,11 +50,11 @@ class Login extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 80,),
+              const SizedBox(height: 30), // Reduced from 80 to account for logo
                _emailAddress(),
-               const SizedBox(height: 20,),
+               const SizedBox(height: 20),
                _password(),
-               const SizedBox(height: 50,),
+               const SizedBox(height: 50),
                _signin(context),
             ],
           ),
@@ -91,7 +83,7 @@ class Login extends StatelessWidget {
           controller: _emailController,
           decoration: InputDecoration(
             filled: true,
-            hintText: 'mahdiforwork@gmail.com',
+            hintText: 'your-email@gmail.com',
             hintStyle: const TextStyle(
               color: Color(0xff6A6A6A),
               fontWeight: FontWeight.normal,
@@ -143,7 +135,7 @@ class Login extends StatelessWidget {
   Widget _signin(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff0D6EFD),
+        backgroundColor: const Color.fromARGB(255, 219, 21, 21),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
@@ -157,13 +149,19 @@ class Login extends StatelessWidget {
           context: context
         );
       },
-      child: const Text("Sign In"),
+      child: const Text(
+        "Log in",
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.normal,
+          fontSize: 16),
+        ),
     );
   }
 
   Widget _signup(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 40),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(

@@ -14,19 +14,21 @@ class AuthService {
   }) async {
     
     try {
-
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password
       );
 
       await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => const Home()
-        )
-      );
+      // Check if the context is still valid
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => const Home()
+          )
+        );
+      }
       
     } on FirebaseAuthException catch(e) {
       String message = '';
@@ -35,7 +37,7 @@ class AuthService {
       } else if (e.code == 'email-already-in-use') {
         message = 'An account already exists with that email.';
       }
-       Fluttertoast.showToast(
+      Fluttertoast.showToast(
         msg: message,
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.SNACKBAR,
@@ -44,10 +46,6 @@ class AuthService {
         fontSize: 14.0,
       );
     }
-    catch(e){
-
-    }
-
   }
 
   Future<void> signin({
@@ -57,19 +55,21 @@ class AuthService {
   }) async {
     
     try {
-
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password
       );
 
       await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => const Home()
-        )
-      );
+      // Check if the context is still valid
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => const Home()
+          )
+        );
+      }
       
     } on FirebaseAuthException catch(e) {
       String message = '';
@@ -78,7 +78,7 @@ class AuthService {
       } else if (e.code == 'invalid-credential') {
         message = 'Wrong password provided for that user.';
       }
-       Fluttertoast.showToast(
+      Fluttertoast.showToast(
         msg: message,
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.SNACKBAR,
@@ -87,10 +87,6 @@ class AuthService {
         fontSize: 14.0,
       );
     }
-    catch(e){
-
-    }
-
   }
 
   Future<void> signout({
@@ -99,11 +95,14 @@ class AuthService {
     
     await FirebaseAuth.instance.signOut();
     await Future.delayed(const Duration(seconds: 1));
-    Navigator.pushReplacement(
+    // Check if the context is still valid
+    if (context.mounted) {
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (BuildContext context) =>Login()
+          builder: (BuildContext context) => Login()
         )
       );
+    }
   }
 }
