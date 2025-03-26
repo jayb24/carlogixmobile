@@ -14,20 +14,20 @@ dependencies:
   google_fonts: ^6.2.1
   fluttertoast: ^8.2.12
   provider: ^6.1.2
-  firebase_core: ^3.12.1
-  firebase_auth: ^5.5.1
+  http: ^1.2.0
+  flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.13.1  # Updated version
+  flutter_launcher_icons: ^0.13.1
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo/logo.png"  # Path to your logo file
-  remove_alpha_ios: true  # Optional: removes transparency for iOS icons
+  image_path: "assets/logo/logo.png"
+  remove_alpha_ios: true
   web:
     generate: false
   windows:
@@ -40,5 +40,5 @@ flutter:
   
   assets:
     - assets/images/logo.png
-    - assets/logo/logo.png  # Your existing logo path
+    - assets/logo/logo.png
 
