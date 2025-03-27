@@ -207,4 +207,152 @@ class ApiService {
       return false;
     }
   }
+
+  // Add a new vehicle to the user's account
+  Future<Map<String, dynamic>> addVehicle({
+    required String vin,
+    required String make,
+    required String model,
+    required int year,
+    required String color,
+    required int startingMileage,
+    required int totalMileage,
+  }) async {
+    try {
+      // Get user ID from storage
+      final userId = await storage.read(key: 'userId');
+      if (userId == null) {
+        return {'success': false, 'error': 'User ID not found. Please log in again.'};
+      }
+
+      print('Adding vehicle for user: $userId');
+      print('VIN: $vin, Make: $make, Model: $model, Year: $year, Color: $color, Mileage: $startingMileage');
+      
+      final response = await http.post(
+        Uri.parse('$baseUrl/cars'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userId': userId,
+          'vin': vin,
+          'make': make,
+          'model': model,
+          'year': year.toString(),
+          'color': color,
+          'startingMileage': startingMileage,
+          'totalMileage': totalMileage,
+          'rateOfChange': 1.0, // Default value
+        }),
+      );
+      
+      print('Add vehicle response status: ${response.statusCode}');
+      print('Add vehicle response body: ${response.body}');
+      
+      if (response.body.isEmpty) {
+        return {'success': false, 'error': 'Empty response from server'};
+      }
+      
+      final data = json.decode(response.body);
+      
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return {'success': true, 'data': data};
+      } else {
+        return {'success': false, 'error': data['error'] ?? 'Failed to add vehicle'};
+      }
+    } catch (e) {
+      print('Error adding vehicle: $e');
+      return {'success': false, 'error': e.toString()};
+    }
+  }
+
+  // Add a vehicle by looking up VIN
+  Future<Map<String, dynamic>> decodeVinAndAddVehicle({
+    required String vin,
+    required String color,
+    required int startingMileage,
+  }) async {
+    try {
+      // Get user ID from storage
+      final userId = await storage.read(key: 'userId');
+      if (userId == null) {
+        return {'success': false, 'error': 'User ID not found. Please log in again.'};
+      }
+
+      print('Decoding VIN and adding vehicle for user: $userId');
+      print('VIN: $vin, Color: $color, Mileage: $startingMileage');
+      
+      final response = await http.post(
+        Uri.parse('$baseUrl/decode-vin'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userId': userId,
+          'vin': vin,
+          'color': color,
+          'startingMileage': startingMileage,
+          'rateOfChange': 1.0, // Default value
+        }),
+      );
+      
+      print('Decode VIN response status: ${response.statusCode}');
+      print('Decode VIN response body: ${response.body}');
+      
+      if (response.body.isEmpty) {
+        return {'success': false, 'error': 'Empty response from server'};
+      }
+      
+      final data = json.decode(response.body);
+      
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return {'success': true, 'data': data};
+      } else {
+        return {'success': false, 'error': data['error'] ?? 'Failed to decode VIN'};
+      }
+    } catch (e) {
+      print('Error decoding VIN: $e');
+      return {'success': false, 'error': e.toString()};
+    }
+  }
+
+  // Get all vehicles for the current user
+  Future<List<Map<String, dynamic>>> getUserVehicles() async {
+    try {
+      // Get user ID from storage
+      final userId = await storage.read(key: 'userId');
+      if (userId == null) {
+        throw Exception('User ID not found. Please log in again.');
+      }
+
+      print('Fetching vehicles for user: $userId');
+      
+      final response = await http.get(
+        Uri.parse('$baseUrl/cars/$userId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      
+      print('Get vehicles response status: ${response.statusCode}');
+      print('Get vehicles response body: ${response.body}');
+      
+      if (response.body.isEmpty) {
+        return [];
+      }
+      
+      final data = json.decode(response.body);
+      
+      if (response.statusCode == 200) {
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        } else if (data['cars'] is List) {
+          return List<Map<String, dynamic>>.from(data['cars']);
+        } else if (data['success'] == true && data['cars'] is List) {
+          return List<Map<String, dynamic>>.from(data['cars']);
+        }
+        return [];
+      } else {
+        print('Error fetching vehicles: ${data['error']}');
+        return [];
+      }
+    } catch (e) {
+      print('Error getting vehicles: $e');
+      return [];
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import 'package:carlogix_mobile/pages/profile/profile.dart';
+import 'package:carlogix_mobile/pages/vehicle/add_vehicle.dart';  // Add this import
 import 'package:carlogix_mobile/services/api_service.dart';
-import 'package:carlogix_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -17,11 +17,16 @@ class _HomeState extends State<Home> {
   String _lastName = '';
   String _email = '';
   bool _isLoading = true;
+  
+  // Add these for vehicles
+  List<Map<String, dynamic>> _vehicles = [];
+  bool _isLoadingVehicles = true;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadVehicles();  // Add this line
   }
 
   Future<void> _loadUserData() async {
@@ -62,6 +67,28 @@ class _HomeState extends State<Home> {
         _lastName = '';
         _email = 'Could not load user data';
         _isLoading = false;
+      });
+    }
+  }
+  
+  // Add this method to load vehicles
+  Future<void> _loadVehicles() async {
+    try {
+      setState(() {
+        _isLoadingVehicles = true;
+      });
+      
+      final vehicles = await _apiService.getUserVehicles();
+      
+      setState(() {
+        _vehicles = List<Map<String, dynamic>>.from(vehicles);
+        _isLoadingVehicles = false;
+      });
+    } catch (e) {
+      print('Error loading vehicles: $e');
+      setState(() {
+        _vehicles = [];
+        _isLoadingVehicles = false;
       });
     }
   }
@@ -141,21 +168,84 @@ class _HomeState extends State<Home> {
                       )
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                   
-                  // Add Content Here - Dashboard Cards
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'No vehicles added yet.',
+                  // My Vehicles section header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'My Vehicles',
                         style: GoogleFonts.raleway(
                           textStyle: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 16
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18
                           )
                         ),
                       ),
-                    ),
+                      if (_vehicles.isNotEmpty)
+                        TextButton(
+                          onPressed: _loadVehicles,
+                          child: Text(
+                            'Refresh',
+                            style: GoogleFonts.raleway(
+                              textStyle: const TextStyle(
+                                color: Color.fromARGB(255, 219, 21, 21),
+                                fontWeight: FontWeight.bold,
+                              )
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  
+                  // Vehicle list or loading indicator
+                  Expanded(
+                    child: _isLoadingVehicles
+                      ? const Center(child: CircularProgressIndicator())
+                      : _vehicles.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.directions_car_outlined,
+                                  size: 64,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No vehicles added yet',
+                                  style: GoogleFonts.raleway(
+                                    textStyle: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    )
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Add your first vehicle to get started',
+                                  style: GoogleFonts.raleway(
+                                    textStyle: TextStyle(
+                                      color: Colors.grey.shade500,
+                                      fontSize: 14,
+                                    )
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: _vehicles.length,
+                            itemBuilder: (context, index) {
+                              final vehicle = _vehicles[index];
+                              return _buildVehicleCard(vehicle);
+                            },
+                          ),
                   ),
                   
                   // Add Vehicle Button
@@ -168,21 +258,146 @@ class _HomeState extends State<Home> {
                       minimumSize: const Size(double.infinity, 50),
                       elevation: 0,
                     ),
-                    onPressed: () {
-                      // Navigate to add vehicle page
-                      // You'll implement this later
+                    onPressed: () async {
+                      // Navigate to add vehicle page and wait for result
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddVehiclePage()),
+                      );
+                      
+                      // If a vehicle was added, refresh the vehicles list
+                      if (result == true) {
+                        _loadVehicles();
+                      }
                     },
-                    child: const Text(
+                    child: Text(
                       "Add Vehicle",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16
+                      style: GoogleFonts.raleway(
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16
+                        )
                       ),
                     ),
                   ),
                 ],
               ),
+        ),
+      ),
+    );
+  }
+  
+  // Update this method to properly format mileage and fix all deprecated color properties
+  Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
+    // Extract vehicle data, handle both string and int types
+    final make = vehicle['make'] ?? '';
+    final model = vehicle['model'] ?? '';
+    final year = vehicle['year'] ?? '';
+    final color = vehicle['color'] ?? '';
+    
+    // Handle mileage which could be string, int, or double
+    var totalMileage = vehicle['totalMileage'];
+    int formattedMileage;
+    
+    if (totalMileage is String) {
+      // Try to parse string to double first, then round
+      formattedMileage = (double.tryParse(totalMileage) ?? 0).round();
+    } else if (totalMileage is double) {
+      // Round double to nearest integer
+      formattedMileage = totalMileage.round();
+    } else if (totalMileage is int) {
+      // Already an integer
+      formattedMileage = totalMileage;
+    } else {
+      // Default fallback
+      formattedMileage = 0;
+    }
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(
+              Colors.grey.r.toInt(),
+              Colors.grey.g.toInt(),
+              Colors.grey.b.toInt(),
+              0.1  // opacity value
+            ),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () {
+            // Navigate to vehicle details page - to be implemented later
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Vehicle details coming soon!'))
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Car icon or image
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.directions_car,
+                    color: Color.fromARGB(255, 219, 21, 21),
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Car details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$year $make $model',
+                        style: GoogleFonts.raleway(
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '$color • ${formattedMileage.toString()} miles',
+                        style: GoogleFonts.raleway(
+                          textStyle: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
