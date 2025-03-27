@@ -6,7 +6,7 @@ class ApiService {
   // Base URL for your MERN stack API - replace with your actual server URL
   // For local development with an emulator, use 10.0.2.2 instead of localhost
   // For a physical device, use your computer's IP address on the same network
-  final String baseUrl = 'http://localhost:5000/api'; // Replace with your actual IP or domain
+  final String baseUrl = 'http://159.203.135.123:5000/api'; // Replace with your actual IP or domain
   
   // Storage for user data
   final storage = const FlutterSecureStorage();
@@ -19,6 +19,7 @@ class ApiService {
     required String lastName,
   }) async {
     try {
+      print('Attempting to register with: $email');
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
         headers: {'Content-Type': 'application/json'},
@@ -30,18 +31,33 @@ class ApiService {
         }),
       );
 
-      final data = json.decode(response.body);
+      // Print response for debugging
+      print('Registration response status: ${response.statusCode}');
+      print('Registration response body: ${response.body}');
       
-      if (response.statusCode == 200 && data['success'] == true) {
-        // Store email and password temporarily to use during verification
-        await storage.write(key: 'temp_email', value: email);
-        await storage.write(key: 'temp_password', value: password);
-        await storage.write(key: 'temp_firstName', value: firstName);
-        await storage.write(key: 'temp_lastName', value: lastName);
+      // Check if the response body is empty
+      if (response.body.isEmpty) {
+        print('Registration failed: Empty response from server');
+        return false;
+      }
+      
+      try {
+        final data = json.decode(response.body);
         
-        return true;
-      } else {
-        print('Registration failed: ${data['error']}');
+        if (response.statusCode == 200 && data['success'] == true) {
+          // Store email and password temporarily to use during verification
+          await storage.write(key: 'temp_email', value: email);
+          await storage.write(key: 'temp_password', value: password);
+          await storage.write(key: 'temp_firstName', value: firstName);
+          await storage.write(key: 'temp_lastName', value: lastName);
+          
+          return true;
+        } else {
+          print('Registration failed: ${data['error']}');
+          return false;
+        }
+      } catch (jsonError) {
+        print('Error parsing JSON response: $jsonError');
         return false;
       }
     } catch (e) {
@@ -175,6 +191,20 @@ class ApiService {
     } catch (e) {
       print('Error getting user profile: $e');
       return {'error': 'Failed to load user profile'};
+    }
+  }
+
+  // Add this method to test server connection
+  Future<bool> testConnection() async {
+    try {
+      print('Testing connection to $baseUrl');
+      final response = await http.get(Uri.parse(baseUrl));
+      print('Server response status: ${response.statusCode}');
+      print('Server response body: ${response.body}');
+      return true;
+    } catch (e) {
+      print('Connection test failed: $e');
+      return false;
     }
   }
 }

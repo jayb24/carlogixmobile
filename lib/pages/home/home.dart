@@ -12,7 +12,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final ApiService _apiService = ApiService();
-  String _userEmail = '';
+  String _firstName = '';
+  String _email = '';
   bool _isLoading = true;
 
   @override
@@ -23,27 +24,37 @@ class _HomeState extends State<Home> {
 
   Future<void> _loadUserData() async {
     try {
-      // Get user info from your API
-      // This will depend on how your MERN API returns user data
-      // Example implementation:
+      // Get user info from secure storage
       final token = await _apiService.getToken();
       if (token != null) {
-        // You would need to implement getUserProfile in your ApiService
-         final userData = await _apiService.getUserProfile();
-         setState(() {
-           _userEmail = userData['email'];
-           _isLoading = false;
-         });
+        final userData = await _apiService.getUserProfile();
         
-        // For now, just use a placeholder:
+        if (userData.containsKey('error')) {
+          setState(() {
+            _firstName = 'Guest';
+            _email = 'Not logged in';
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _firstName = userData['firstName'] ?? 'User';
+            _email = userData['email'] ?? '';
+            _isLoading = false;
+          });
+        }
+      } else {
+        // No token found, user isn't logged in
         setState(() {
-          _userEmail = 'user@example.com'; // Replace with actual API call later
+          _firstName = 'Guest';
+          _email = 'Not logged in';
           _isLoading = false;
         });
       }
     } catch (e) {
+      print('Error loading user data: $e');
       setState(() {
-        _userEmail = 'Error loading user data';
+        _firstName = 'Error';
+        _email = 'Could not load user data';
         _isLoading = false;
       });
     }
@@ -53,39 +64,97 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'CarLogix',
+          style: GoogleFonts.raleway(
+            textStyle: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 22
+            )
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Hello👋',
-                style: GoogleFonts.raleway(
-                  textStyle: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20
-                  )
-                ),
-              ),
-              const SizedBox(height: 10),
-              _isLoading 
-                ? CircularProgressIndicator() 
-                : Text(
-                    _userEmail,
+          child: _isLoading 
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Welcome message with first name
+                  Text(
+                    'Hello, $_firstName! 👋',
                     style: GoogleFonts.raleway(
                       textStyle: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 20
+                        fontSize: 24
                       )
                     ),
                   ),
-              const SizedBox(height: 30),
-              _logout(context)
-            ],
-          ),
+                  const SizedBox(height: 8),
+                  // Email address in smaller text
+                  Text(
+                    _email,
+                    style: GoogleFonts.raleway(
+                      textStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 16
+                      )
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  
+                  // Add Content Here - Dashboard Cards
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'No vehicles added yet.',
+                        style: GoogleFonts.raleway(
+                          textStyle: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16
+                          )
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  // Add Vehicle Button
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 219, 21, 21),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      minimumSize: const Size(double.infinity, 50),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      // Navigate to add vehicle page
+                      // You'll implement this later
+                    },
+                    child: const Text(
+                      "Add Vehicle",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 16
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Logout button
+                  _logout(context)
+                ],
+              ),
         ),
       ),
     );
@@ -94,11 +163,12 @@ class _HomeState extends State<Home> {
   Widget _logout(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color.fromARGB(255, 219, 21, 21),
+        backgroundColor: Colors.grey.shade200,
+        foregroundColor: Colors.black,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
-        minimumSize: const Size(double.infinity, 60),
+        minimumSize: const Size(double.infinity, 50),
         elevation: 0,
       ),
       onPressed: () async {
@@ -107,7 +177,6 @@ class _HomeState extends State<Home> {
       child: const Text(
         "Sign Out",
         style: TextStyle(
-          color: Colors.white,
           fontWeight: FontWeight.normal,
           fontSize: 16
         ),

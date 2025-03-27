@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 // Change class to StatefulWidget for interactive validation
 class Signup extends StatefulWidget {
   @override
-  _SignupState createState() => _SignupState();
+  State<Signup> createState() => _SignupState();
 }
 
 class _SignupState extends State<Signup> {
