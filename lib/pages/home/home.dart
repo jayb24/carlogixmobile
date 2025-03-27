@@ -1,3 +1,4 @@
+import 'package:carlogix_mobile/pages/profile/profile.dart';
 import 'package:carlogix_mobile/services/api_service.dart';
 import 'package:carlogix_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final ApiService _apiService = ApiService();
   String _firstName = '';
+  String _lastName = '';
   String _email = '';
   bool _isLoading = true;
 
@@ -32,12 +34,14 @@ class _HomeState extends State<Home> {
         if (userData.containsKey('error')) {
           setState(() {
             _firstName = 'Guest';
+            _lastName = '';
             _email = 'Not logged in';
             _isLoading = false;
           });
         } else {
           setState(() {
             _firstName = userData['firstName'] ?? 'User';
+            _lastName = userData['lastName'] ?? '';
             _email = userData['email'] ?? '';
             _isLoading = false;
           });
@@ -46,6 +50,7 @@ class _HomeState extends State<Home> {
         // No token found, user isn't logged in
         setState(() {
           _firstName = 'Guest';
+          _lastName = '';
           _email = 'Not logged in';
           _isLoading = false;
         });
@@ -54,6 +59,7 @@ class _HomeState extends State<Home> {
       print('Error loading user data: $e');
       setState(() {
         _firstName = 'Error';
+        _lastName = '';
         _email = 'Could not load user data';
         _isLoading = false;
       });
@@ -78,6 +84,31 @@ class _HomeState extends State<Home> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          // Profile avatar button
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.red.shade100,
+                child: Text(
+                  _getInitials(),
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 219, 21, 21),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -150,37 +181,21 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  // Logout button
-                  _logout(context)
                 ],
               ),
         ),
       ),
     );
   }
-
-  Widget _logout(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey.shade200,
-        foregroundColor: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-        minimumSize: const Size(double.infinity, 50),
-        elevation: 0,
-      ),
-      onPressed: () async {
-        await AuthService().signout(context: context);
-      },
-      child: const Text(
-        "Sign Out",
-        style: TextStyle(
-          fontWeight: FontWeight.normal,
-          fontSize: 16
-        ),
-      ),
-    );
+  
+  String _getInitials() {
+    String initials = '';
+    if (_firstName.isNotEmpty) {
+      initials += _firstName[0];
+    }
+    if (_lastName.isNotEmpty) {
+      initials += _lastName[0];
+    }
+    return initials.toUpperCase();
   }
 }
