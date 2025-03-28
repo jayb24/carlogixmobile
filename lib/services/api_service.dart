@@ -355,4 +355,34 @@ class ApiService {
       return [];
     }
   }
+
+  // Delete a vehicle
+  Future<Map<String, dynamic>> deleteVehicle(String carId) async {
+    try {
+      print('Deleting vehicle with ID: $carId');
+      
+      final response = await http.delete(
+        Uri.parse('$baseUrl/cars/$carId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      
+      print('Delete vehicle response status: ${response.statusCode}');
+      print('Delete vehicle response body: ${response.body}');
+      
+      if (response.body.isEmpty) {
+        return {'success': true, 'message': 'Vehicle deleted successfully'};
+      }
+      
+      final data = response.body.isNotEmpty ? json.decode(response.body) : {};
+      
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': data};
+      } else {
+        return {'success': false, 'error': data['error'] ?? 'Failed to delete vehicle'};
+      }
+    } catch (e) {
+      print('Error deleting vehicle: $e');
+      return {'success': false, 'error': e.toString()};
+    }
+  }
 }

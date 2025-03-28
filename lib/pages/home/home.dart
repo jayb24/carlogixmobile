@@ -1,5 +1,6 @@
 import 'package:carlogix_mobile/pages/profile/profile.dart';
 import 'package:carlogix_mobile/pages/vehicle/add_vehicle.dart';  // Add this import
+import 'package:carlogix_mobile/pages/vehicle/vehicle_details.dart';
 import 'package:carlogix_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -339,11 +340,19 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: () {
-            // Navigate to vehicle details page - to be implemented later
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Vehicle details coming soon!'))
+          onTap: () async {
+            // Navigate to vehicle details page
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VehicleDetailsPage(vehicle: vehicle),
+              ),
             );
+            
+            // If a change was made (like deleting the vehicle), refresh the list
+            if (result == true) {
+              _loadVehicles();
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(16),
