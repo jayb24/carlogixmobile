@@ -217,6 +217,7 @@ class ApiService {
     required String color,
     required int startingMileage,
     required int totalMileage,
+    required int weeklyMileage,  // New parameter
   }) async {
     try {
       // Get user ID from storage
@@ -226,7 +227,7 @@ class ApiService {
       }
 
       print('Adding vehicle for user: $userId');
-      print('VIN: $vin, Make: $make, Model: $model, Year: $year, Color: $color, Mileage: $startingMileage');
+      print('VIN: $vin, Make: $make, Model: $model, Year: $year, Color: $color, Mileage: $startingMileage, Weekly: $weeklyMileage');
       
       final response = await http.post(
         Uri.parse('$baseUrl/cars'),
@@ -240,7 +241,7 @@ class ApiService {
           'color': color,
           'startingMileage': startingMileage,
           'totalMileage': totalMileage,
-          'rateOfChange': 1.0, // Default value
+          'rateOfChange': weeklyMileage.toDouble(),  // Convert weekly mileage to rateOfChange
         }),
       );
       
@@ -264,11 +265,13 @@ class ApiService {
     }
   }
 
-  // Add a vehicle by looking up VIN
+  // Update the decodeVinAndAddVehicle method to include weeklyMileage
+
   Future<Map<String, dynamic>> decodeVinAndAddVehicle({
     required String vin,
     required String color,
     required int startingMileage,
+    required int weeklyMileage,  // New parameter
   }) async {
     try {
       // Get user ID from storage
@@ -278,7 +281,7 @@ class ApiService {
       }
 
       print('Decoding VIN and adding vehicle for user: $userId');
-      print('VIN: $vin, Color: $color, Mileage: $startingMileage');
+      print('VIN: $vin, Color: $color, Mileage: $startingMileage, Weekly: $weeklyMileage');
       
       final response = await http.post(
         Uri.parse('$baseUrl/decode-vin'),
@@ -288,7 +291,7 @@ class ApiService {
           'vin': vin,
           'color': color,
           'startingMileage': startingMileage,
-          'rateOfChange': 1.0, // Default value
+          'rateOfChange': weeklyMileage.toDouble(),  // Weekly mileage as rate of change
         }),
       );
       
@@ -382,6 +385,93 @@ class ApiService {
       }
     } catch (e) {
       print('Error deleting vehicle: $e');
+      return {'success': false, 'error': e.toString()};
+    }
+  }
+
+  // Add this method to your ApiService class
+
+  // Update vehicle mileage
+  Future<Map<String, dynamic>> updateMileage(String carId, int totalMileage) async {
+    try {
+      print('Updating mileage for vehicle ID: $carId to $totalMileage');
+      
+      final response = await http.put(
+        Uri.parse('$baseUrl/cars/$carId/update-mileage'),  // Remove the duplicate 'api/'
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'totalMileage': totalMileage,
+        }),
+      );
+      
+      print('Update mileage response status: ${response.statusCode}');
+      print('Update mileage response body: ${response.body}');
+      
+      if (response.body.isEmpty) {
+        return {'success': false, 'error': 'Empty response from server'};
+      }
+      
+      // Use a try-catch to handle potential JSON parsing errors
+      try {
+        final data = json.decode(response.body);
+        
+        if (response.statusCode == 200) {
+          return {'success': true, 'data': data};
+        } else {
+          return {'success': false, 'error': data['error'] ?? 'Failed to update mileage'};
+        }
+      } catch (e) {
+        print('Error parsing JSON response: $e');
+        return {
+          'success': false, 
+          'error': 'Server returned invalid response format. Status: ${response.statusCode}'
+        };
+      }
+    } catch (e) {
+      print('Error updating mileage: $e');
+      return {'success': false, 'error': e.toString()};
+    }
+  }
+
+  // Add this method to your ApiService class
+
+  // Update weekly mileage estimate (rate of change)
+  Future<Map<String, dynamic>> updateWeeklyMileage(String carId, int weeklyMileage) async {
+    try {
+      print('Updating weekly mileage for vehicle ID: $carId to $weeklyMileage');
+      
+      final response = await http.put(
+        Uri.parse('$baseUrl/cars/$carId/update-weekly-mileage'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'rateOfChange': weeklyMileage,
+        }),
+      );
+      
+      print('Update weekly mileage response status: ${response.statusCode}');
+      print('Update weekly mileage response body: ${response.body}');
+      
+      if (response.body.isEmpty) {
+        return {'success': false, 'error': 'Empty response from server'};
+      }
+      
+      try {
+        final data = json.decode(response.body);
+        
+        if (response.statusCode == 200) {
+          return {'success': true, 'data': data};
+        } else {
+          return {'success': false, 'error': data['error'] ?? 'Failed to update weekly mileage'};
+        }
+      } catch (e) {
+        print('Error parsing JSON response: $e');
+        return {
+          'success': false, 
+          'error': 'Server returned invalid response format. Status: ${response.statusCode}'
+        };
+      }
+    } catch (e) {
+      print('Error updating weekly mileage: $e');
       return {'success': false, 'error': e.toString()};
     }
   }

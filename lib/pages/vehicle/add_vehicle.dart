@@ -21,10 +21,12 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   final _yearController = TextEditingController();
   final _colorController = TextEditingController();
   final _mileageController = TextEditingController();
+  final _weeklyMileageController = TextEditingController(text: '100'); // Default value
   
   bool _isLoading = false;
   bool _isManualEntry = true; // Toggle between manual entry and VIN lookup
   String? _errorMessage;
+  int _weeklyMileage = 0;
 
   @override
   void dispose() {
@@ -34,6 +36,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     _yearController.dispose();
     _colorController.dispose();
     _mileageController.dispose();
+    _weeklyMileageController.dispose(); // Add this line
     super.dispose();
   }
 
@@ -41,6 +44,9 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    
+    // Make sure to call save() on the form to trigger onSaved callbacks
+    _formKey.currentState!.save();
     
     setState(() {
       _isLoading = true;
@@ -59,6 +65,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         color: _colorController.text,
         startingMileage: mileage,
         totalMileage: mileage,
+        weeklyMileage: _weeklyMileage, // Add this parameter
       );
       
       setState(() {
@@ -91,6 +98,13 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   }
   
   Future<void> _lookupVinAndAddVehicle() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    
+    // Make sure to call save() on the form to trigger onSaved callbacks
+    _formKey.currentState!.save();
+    
     if (_vinController.text.isEmpty || 
         _colorController.text.isEmpty || 
         _mileageController.text.isEmpty) {
@@ -110,6 +124,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         vin: _vinController.text,
         color: _colorController.text,
         startingMileage: int.parse(_mileageController.text),
+        weeklyMileage: _weeklyMileage, // Add this parameter
       );
       
       setState(() {
@@ -293,6 +308,42 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
                     FilteringTextInputFormatter.digitsOnly,
                   ],
                   hintText: 'Enter current odometer reading',
+                ),
+                
+                // Weekly Mileage Input
+                TextFormField(
+                  controller: _weeklyMileageController,
+                  decoration: InputDecoration(
+                    labelText: 'Weekly Mileage Estimate',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    suffixText: 'miles/week',
+                    prefixIcon: const Icon(Icons.speed),
+                    hintText: '100',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your estimated weekly mileage';
+                    }
+                    if (int.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    if (int.tryParse(value)! < 0) {
+                      return 'Weekly mileage cannot be negative';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _weeklyMileage = int.parse(value ?? '100');
+                  },
                 ),
                 
                 // Fields for manual entry only
