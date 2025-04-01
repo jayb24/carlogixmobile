@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:carlogix_mobile/services/api_service.dart';
 import 'package:carlogix_mobile/services/auth_service.dart';
 
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -123,18 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 40),
                   
-                  // Account management buttons
-                  _buildActionButton(
-                    'Edit Profile',
-                    Icons.edit,
-                    () {
-                      // Navigate to edit profile page (to be implemented)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Edit Profile - Coming soon!'))
-                      );
-                    },
-                  ),
-                  
+                // Account management buttons
                   _buildActionButton(
                     'Change Password',
                     Icons.lock_outline,
@@ -145,30 +135,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
-                  
-                  _buildActionButton(
-                    'Notification Settings',
-                    Icons.notifications_outlined,
-                    () {
-                      // Navigate to notification settings (to be implemented)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Notification Settings - Coming soon!'))
-                      );
-                    },
-                  ),
-                  
-                  _buildActionButton(
-                    'Help & Support',
-                    Icons.help_outline,
-                    () {
-                      // Navigate to help & support (to be implemented)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Help & Support - Coming soon!'))
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 30),
                   
                   // Sign out button
                   ElevatedButton.icon(
