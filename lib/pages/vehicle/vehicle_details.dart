@@ -85,6 +85,57 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
     return rate.round().toString();
   }
 
+  // Add this method to determine vehicle type
+  IconData _getVehicleIcon() {
+    // Get make and model
+    final make = (_vehicle['make'] ?? '').toString().toLowerCase();
+    final model = (_vehicle['model'] ?? '').toString().toLowerCase();
+    
+    // List of common SUV keywords
+    final suvKeywords = [
+      'suv', 'crossover', 'cr-v', 'crv', 'rav4', 'equinox', 'explorer', 'highlander',
+      'pilot', 'tahoe', 'suburban', 'expedition', 'outback', 'forester', 'pathfinder', 
+      'x5', 'q5', 'gx', 'lx', 'rx', 'nx', 'suburban', 'escape', 'edge', 'traverse',
+      'sorento', 'sportage', 'tucson', 'santa fe', 'rogue', 'murano', 'cross'
+    ];
+    
+    // List of common truck keywords
+    final truckKeywords = [
+      'truck', 'pickup', 'f-150', 'f150', 'silverado', 'sierra', 'ram', 'ranger',
+      'tundra', 'tacoma', 'frontier', 'colorado', 'canyon', 'ridgeline', 'titan'
+    ];
+    
+    // List of common van/minivan keywords
+    final vanKeywords = [
+      'van', 'minivan', 'sienna', 'odyssey', 'pacifica', 'carnival', 'sedona', 
+      'grand caravan', 'transit', 'express', 'voyager', 'caravan', 'nv200'
+    ];
+    
+    // Check for SUV
+    for (final keyword in suvKeywords) {
+      if (model.contains(keyword) || make.contains(keyword)) {
+        return Icons.directions_car_filled;
+      }
+    }
+    
+    // Check for truck
+    for (final keyword in truckKeywords) {
+      if (model.contains(keyword) || make.contains(keyword)) {
+        return Icons.local_shipping;
+      }
+    }
+    
+    // Check for van
+    for (final keyword in vanKeywords) {
+      if (model.contains(keyword) || make.contains(keyword)) {
+        return Icons.airport_shuttle;
+      }
+    }
+    
+    // Default to sedan/regular car
+    return Icons.directions_car;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Extract and format vehicle data
@@ -106,12 +157,12 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade100,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
           title: Text(
-            '$year $make $model',
+            'Vehicle Details',
             style: GoogleFonts.raleway(
               textStyle: const TextStyle(
                 color: Colors.black,
@@ -126,231 +177,185 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
             onPressed: () => Navigator.pop(context, _vehicleWasUpdated),
           ),
           actions: [
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: Colors.black),
-              onSelected: (value) {
-                switch (value) {
-                  case 'edit':
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Edit vehicle coming soon!'))
-                    );
-                  case 'delete':
-                    _showDeleteConfirmation();
-                }
-              },
-              itemBuilder: (BuildContext context) => [
-                const PopupMenuItem<String>(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit, color: Colors.black),
-                      SizedBox(width: 8),
-                      Text('Edit Vehicle')
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete, color: Colors.red),
-                      const SizedBox(width: 8),
-                      Text('Delete Vehicle', style: TextStyle(color: Colors.red))
-                    ],
-                  ),
-                ),
-              ],
+            // Replace the PopupMenuButton with a simple IconButton for delete
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _showDeleteConfirmation(),
+              tooltip: 'Delete Vehicle',
             ),
           ],
         ),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  // Vehicle image/icon card
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.directions_car,
-                        color: Color.fromARGB(255, 219, 21, 21),
-                        size: 120,
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // Main Vehicle Card
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Car Icon
+                          Container(
+                            height: 180,
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade100,
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
+                              ),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                _getVehicleIcon(), // Use the dynamic method to determine icon
+                                color: const Color.fromARGB(255, 219, 21, 21),
+                                size: 100,
+                              ),
+                            ),
+                          ),
+                          
+                          // Vehicle Name
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                            child: Text(
+                              '$make $model',
+                              style: GoogleFonts.raleway(
+                                textStyle: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          
+                          // Year
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                            child: Text(
+                              year,
+                              style: GoogleFonts.raleway(
+                                textStyle: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          
+                          // VIN
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                            child: Text(
+                              'VIN: $vin',
+                              style: GoogleFonts.raleway(
+                                textStyle: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          
+                          // Divider
+                          Divider(thickness: 1, color: Colors.grey.shade200),
+                          
+                          // Vehicle Details
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildDetailRow('Color', color),
+                                const SizedBox(height: 8),
+                                _buildDetailRow('Current Mileage', '$totalMileage miles'),
+                                const SizedBox(height: 8),
+                                _buildDetailRow('Starting Mileage', '$startingMileage miles'),
+                                const SizedBox(height: 8),
+                                _buildDetailRow('Weekly Mileage', '$rateOfChange miles/week'),
+                                const SizedBox(height: 8),
+                                _buildDetailRow('Added On', addedAt),
+                                if (_vehicle['updatedAt'] != null && _vehicle['updatedAt'] != _vehicle['addedAt'])
+                                  Column(
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      _buildDetailRow('Last Updated', updatedAt),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Vehicle stats section
-                  Text(
-                    'Vehicle Information',
-                    style: GoogleFonts.raleway(
-                      textStyle: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                    
+                    // Update Mileage Button
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 2,
+                        minimumSize: const Size(double.infinity, 56),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Vehicle information cards
-                  _buildInfoCard('Make', make),
-                  _buildInfoCard('Model', model),
-                  _buildInfoCard('Year', year),
-                  _buildInfoCard('Color', color),
-                  _buildInfoCard('VIN', vin),
-                  _buildInfoCard('Current Mileage', '$totalMileage miles'),
-                  _buildInfoCard('Starting Mileage', '$startingMileage miles'),
-                  _buildInfoCard('Added On', addedAt),
-                  if (_vehicle['updatedAt'] != null && _vehicle['updatedAt'] != _vehicle['addedAt'])
-                    _buildInfoCard('Last Updated', updatedAt),
-                  _buildInfoCard('Weekly Mileage', '$rateOfChange miles/week'),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Action buttons section
-                  Text(
-                    'Actions',
-                    style: GoogleFonts.raleway(
-                      textStyle: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                      icon: const Icon(Icons.edit_road),
+                      label: Text(
+                        'Update Mileage',
+                        style: GoogleFonts.raleway(
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
+                      onPressed: () {
+                        _showUpdateMileageDialog();
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Update mileage button
-                  _buildActionButton(
-                    'Update Mileage',
-                    Icons.edit_road,
-                    Colors.blue.shade50,
-                    Colors.blue.shade800,
-                    () {
-                      _showUpdateMileageDialog();
-                    },
-                  ),
-                  
-                  // Update weekly mileage button
-                  _buildActionButton(
-                    'Update Weekly Mileage Estimate',
-                    Icons.calendar_month,
-                    Colors.teal.shade50,
-                    Colors.teal.shade800,
-                    () {
-                      _showUpdateWeeklyMileageDialog();
-                    },
-                  ),
-                  
-                  // Add maintenance button
-                  _buildActionButton(
-                    'Add Maintenance Record',
-                    Icons.build_circle,
-                    Colors.amber.shade50,
-                    Colors.amber.shade800,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Add maintenance coming soon!'))
-                      );
-                    },
-                  ),
-                  
-                  // View service history button
-                  _buildActionButton(
-                    'View Service History',
-                    Icons.history,
-                    Colors.green.shade50,
-                    Colors.green.shade800,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Service history coming soon!'))
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 40),
-                ],
+                    
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
       ),
     );
   }
-  
-  Widget _buildInfoCard(String label, String value) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.raleway(
-              textStyle: TextStyle(
-                color: Colors.grey.shade800,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Text(
-            value,
-            style: GoogleFonts.raleway(
-              textStyle: const TextStyle(
-                color: Colors.black,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildActionButton(
-    String label,
-    IconData icon,
-    Color backgroundColor,
-    Color textColor,
-    VoidCallback onPressed,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: textColor,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          elevation: 0,
-        ),
-        icon: Icon(icon),
-        label: Text(
+
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
           label,
           style: GoogleFonts.raleway(
-            textStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
+            textStyle: TextStyle(
+              color: Colors.grey.shade700,
               fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
-        onPressed: onPressed,
-      ),
+        Text(
+          value,
+          style: GoogleFonts.raleway(
+            textStyle: const TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
   
@@ -685,170 +690,6 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
     }
   }
 
-  void _showUpdateWeeklyMileageDialog() {
-    // Extract current weekly mileage
-    final currentWeeklyMileage = _formatRateOfChange(_vehicle['rateOfChange']);
-    
-    // Use a temporary variable to store the mileage input
-    String weeklyMileageInput = currentWeeklyMileage;
-    String? errorMessage;
-    
-    showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Text(
-                'Update Weekly Mileage',
-                style: GoogleFonts.raleway(
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'How many miles do you drive per week on average?',
-                    style: GoogleFonts.raleway(),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  TextField(
-                    controller: null, // No controller needed
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      // Update the local variable directly
-                      weeklyMileageInput = value;
-                      
-                      // Validate inline
-                      if (value.isEmpty) {
-                        setState(() => errorMessage = 'Please enter your weekly mileage');
-                      } else {
-                        final mileage = int.tryParse(value);
-                        if (mileage == null) {
-                          setState(() => errorMessage = 'Please enter a valid number');
-                        } else if (mileage < 0) {
-                          setState(() => errorMessage = 'Weekly mileage cannot be negative');
-                        } else {
-                          setState(() => errorMessage = null);
-                        }
-                      }
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Weekly Mileage',
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      suffixText: 'miles/week',
-                      errorText: errorMessage,
-                      hintText: currentWeeklyMileage,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  child: Text(
-                    'Cancel',
-                    style: GoogleFonts.raleway(
-                      textStyle: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                  },
-                ),
-                TextButton(
-                  child: Text(
-                    'Update',
-                    style: GoogleFonts.raleway(
-                      textStyle: TextStyle(
-                        color: Colors.teal.shade800,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    // Validate before submitting
-                    final weeklyMileage = int.tryParse(weeklyMileageInput);
-                    if (weeklyMileage == null) {
-                      setState(() => errorMessage = 'Please enter a valid number');
-                      return;
-                    }
-                    
-                    if (weeklyMileage < 0) {
-                      setState(() => errorMessage = 'Weekly mileage cannot be negative');
-                      return;
-                    }
-                    
-                    Navigator.of(dialogContext).pop();
-                    
-                    // Update weekly mileage
-                    _updateWeeklyMileage(weeklyMileage);
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
 
-  Future<void> _updateWeeklyMileage(int weeklyMileage) async {
-    setState(() {
-      _isLoading = true;
-    });
-    
-    try {
-      final carId = _vehicle['_id'];
-      if (carId == null) {
-        throw Exception('Vehicle ID is missing');
-      }
-      
-      // Update the vehicle locally for now (you can add an API method later)
-      setState(() {
-        _vehicle['rateOfChange'] = weeklyMileage;
-        _isLoading = false;
-      });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Weekly mileage estimate updated'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      
-      // Mark that the vehicle was updated
-      _vehicleWasUpdated = true;
-      
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
+
 }
