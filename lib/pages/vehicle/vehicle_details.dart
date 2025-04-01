@@ -1,6 +1,7 @@
 import 'package:carlogix_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:carlogix_mobile/utils/vehicle_icon_helper.dart';
 
 class VehicleDetailsPage extends StatefulWidget {
   final Map<String, dynamic> vehicle;
@@ -85,57 +86,6 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
     return rate.round().toString();
   }
 
-  // Add this method to determine vehicle type
-  IconData _getVehicleIcon() {
-    // Get make and model
-    final make = (_vehicle['make'] ?? '').toString().toLowerCase();
-    final model = (_vehicle['model'] ?? '').toString().toLowerCase();
-    
-    // List of common SUV keywords
-    final suvKeywords = [
-      'suv', 'crossover', 'cr-v', 'crv', 'rav4', 'equinox', 'explorer', 'highlander',
-      'pilot', 'tahoe', 'suburban', 'expedition', 'outback', 'forester', 'pathfinder', 
-      'x5', 'q5', 'gx', 'lx', 'rx', 'nx', 'suburban', 'escape', 'edge', 'traverse',
-      'sorento', 'sportage', 'tucson', 'santa fe', 'rogue', 'murano', 'cross'
-    ];
-    
-    // List of common truck keywords
-    final truckKeywords = [
-      'truck', 'pickup', 'f-150', 'f150', 'silverado', 'sierra', 'ram', 'ranger',
-      'tundra', 'tacoma', 'frontier', 'colorado', 'canyon', 'ridgeline', 'titan'
-    ];
-    
-    // List of common van/minivan keywords
-    final vanKeywords = [
-      'van', 'minivan', 'sienna', 'odyssey', 'pacifica', 'carnival', 'sedona', 
-      'grand caravan', 'transit', 'express', 'voyager', 'caravan', 'nv200'
-    ];
-    
-    // Check for SUV
-    for (final keyword in suvKeywords) {
-      if (model.contains(keyword) || make.contains(keyword)) {
-        return Icons.directions_car_filled;
-      }
-    }
-    
-    // Check for truck
-    for (final keyword in truckKeywords) {
-      if (model.contains(keyword) || make.contains(keyword)) {
-        return Icons.local_shipping;
-      }
-    }
-    
-    // Check for van
-    for (final keyword in vanKeywords) {
-      if (model.contains(keyword) || make.contains(keyword)) {
-        return Icons.airport_shuttle;
-      }
-    }
-    
-    // Default to sedan/regular car
-    return Icons.directions_car;
-  }
-
   @override
   Widget build(BuildContext context) {
     // Extract and format vehicle data
@@ -200,7 +150,7 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Car Icon
+                          // Car Image
                           Container(
                             height: 180,
                             decoration: BoxDecoration(
@@ -210,10 +160,10 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
                               ),
                             ),
                             child: Center(
-                              child: Icon(
-                                _getVehicleIcon(), // Use the dynamic method to determine icon
-                                color: const Color.fromARGB(255, 219, 21, 21),
-                                size: 100,
+                              child: Image.asset(
+                                VehicleIconHelper.getVehicleImageFromData(_vehicle),
+                                height: 120,
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),

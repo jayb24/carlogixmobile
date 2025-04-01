@@ -1,9 +1,10 @@
 import 'package:carlogix_mobile/pages/profile/profile.dart';
-import 'package:carlogix_mobile/pages/vehicle/add_vehicle.dart';  // Add this import
+import 'package:carlogix_mobile/pages/vehicle/add_vehicle.dart';
 import 'package:carlogix_mobile/pages/vehicle/vehicle_details.dart';
 import 'package:carlogix_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:carlogix_mobile/utils/vehicle_icon_helper.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -322,12 +323,8 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Color.fromRGBO(
-              Colors.grey.r.toInt(),
-              Colors.grey.g.toInt(),
-              Colors.grey.b.toInt(),
-              0.1  // opacity value
-            ),
+            // ignore: deprecated_member_use
+            color: Colors.grey.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -366,10 +363,13 @@ class _HomeState extends State<Home> {
                     color: Colors.red.shade50,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
-                    Icons.directions_car,
-                    color: Color.fromARGB(255, 219, 21, 21),
-                    size: 30,
+                  child: Center( 
+                    child: Image.asset(
+                      VehicleIconHelper.getVehicleImageFromData(vehicle),
+                      width: 30,  // Adjusted to a more appropriate size
+                      height: 30, // Adjusted to a more appropriate size
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
