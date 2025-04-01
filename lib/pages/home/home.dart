@@ -251,14 +251,26 @@ class _HomeState extends State<Home> {
                   ),
                   
                   // Add Vehicle Button
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 219, 21, 21),
+                      backgroundColor: Colors.red, // Change from red to blue
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      minimumSize: const Size(double.infinity, 50),
-                      elevation: 0,
+                      elevation: 2, // Add subtle elevation
+                      minimumSize: const Size(double.infinity, 56), // Match the height
+                    ),
+                    icon: const Icon(Icons.add), // Add an icon to match the icon style
+                    label: Text(
+                      "Add Vehicle",
+                      style: GoogleFonts.raleway(
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, // Make text bold
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                     onPressed: () async {
                       // Navigate to add vehicle page and wait for result
@@ -272,16 +284,6 @@ class _HomeState extends State<Home> {
                         _loadVehicles();
                       }
                     },
-                    child: Text(
-                      "Add Vehicle",
-                      style: GoogleFonts.raleway(
-                        textStyle: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.normal,
-                          fontSize: 16
-                        )
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -290,7 +292,6 @@ class _HomeState extends State<Home> {
     );
   }
   
-  // Update this method to properly format mileage and fix all deprecated color properties
   Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
     // Extract vehicle data, handle both string and int types
     final make = vehicle['make'] ?? '';
@@ -360,7 +361,7 @@ class _HomeState extends State<Home> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center( 

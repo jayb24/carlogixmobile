@@ -96,7 +96,6 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
     final color = _vehicle['color'] ?? 'Unknown';
     final vin = _vehicle['vin'] ?? 'Unknown';
     final totalMileage = _formatMileage(_vehicle['totalMileage']);
-    final startingMileage = _formatMileage(_vehicle['startingMileage']);
     final addedAt = _formatDate(_vehicle['addedAt']);
     final updatedAt = _formatDate(_vehicle['updatedAt']);
     final rateOfChange = _formatRateOfChange(_vehicle['rateOfChange']);
@@ -144,89 +143,136 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
                     // Main Vehicle Card
                     Card(
                       elevation: 2,
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Car Image
-                          Container(
-                            height: 180,
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade100,
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
-                              ),
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                VehicleIconHelper.getVehicleImageFromData(_vehicle),
-                                height: 120,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                          
-                          // Vehicle Name
+                          // Car Image and Basic Info - Horizontal Layout
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                            child: Text(
-                              '$make $model',
-                              style: GoogleFonts.raleway(
-                                textStyle: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Car Image on the left
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      VehicleIconHelper.getVehicleImageFromData(_vehicle),
+                                      height: 80,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          
-                          // Year
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                            child: Text(
-                              year,
-                              style: GoogleFonts.raleway(
-                                textStyle: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.grey.shade700,
+                                
+                                // Space between image and details
+                                const SizedBox(width: 16),
+                                
+                                // Make, Model, Year and VIN on the right
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '$make $model',
+                                        style: GoogleFonts.raleway(
+                                          textStyle: const TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        year,
+                                        style: GoogleFonts.raleway(
+                                          textStyle: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'VIN: $vin',
+                                        style: GoogleFonts.raleway(
+                                          textStyle: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          
-                          // VIN
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                            child: Text(
-                              'VIN: $vin',
-                              style: GoogleFonts.raleway(
-                                textStyle: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              textAlign: TextAlign.center,
+                              ],
                             ),
                           ),
                           
                           // Divider
-                          Divider(thickness: 1, color: Colors.grey.shade200),
+                          const Divider(
+                            height: 1,
+                            color: Colors.white,
+                          ),
                           
-                          // Vehicle Details
+                          // Vehicle Details (keep the rest of the details section the same)
                           Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildDetailRow('Color', color),
+                                // Color with visual indicator
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Color',
+                                      style: GoogleFonts.raleway(
+                                        textStyle: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        // Color box
+                                        Container(
+                                          width: 16,
+                                          height: 16,
+                                          margin: const EdgeInsets.only(right: 8),
+                                          decoration: BoxDecoration(
+                                            color: _getColorFromName(color),
+                                            border: Border.all(color: Colors.grey.shade300),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                        // Color text
+                                        Text(
+                                          color,
+                                          style: GoogleFonts.raleway(
+                                            textStyle: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                                 const SizedBox(height: 8),
-                                _buildDetailRow('Current Mileage', '$totalMileage miles'),
-                                const SizedBox(height: 8),
-                                _buildDetailRow('Starting Mileage', '$startingMileage miles'),
+                                _buildDetailRow('Current Mileage', '$totalMileage miles', highlightValue: true),
                                 const SizedBox(height: 8),
                                 _buildDetailRow('Weekly Mileage', '$rateOfChange miles/week'),
                                 const SizedBox(height: 8),
@@ -245,7 +291,7 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
                       ),
                     ),
                     
-                    // Update Mileage Button
+                    // Update Mileage Button and Info Text
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
@@ -273,6 +319,22 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
                       },
                     ),
                     
+                    // Information text about mileage updates
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Text(
+                        "We recommend updating the mileage when you see that Current Mileage on CarLogix differs from your odometer. CarLogix will automatically update your weekly mileage.",
+                        style: GoogleFonts.raleway(
+                          textStyle: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -281,7 +343,7 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, {bool highlightValue = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -298,8 +360,9 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
         Text(
           value,
           style: GoogleFonts.raleway(
-            textStyle: const TextStyle(
-              color: Colors.black,
+            textStyle: TextStyle(
+              // Use blue color for highlighted values (like current mileage)
+              color: highlightValue ? Colors.blue.shade700 : Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -324,6 +387,7 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -535,6 +599,7 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -640,6 +705,35 @@ class _VehicleDetailsPageState extends State<VehicleDetailsPage> {
     }
   }
 
-
-
+  Color _getColorFromName(String colorName) {
+    switch (colorName.toLowerCase()) {
+      case 'black':
+        return Colors.black;
+      case 'white':
+        return Colors.white;
+      case 'red':
+        return Colors.red;
+      case 'blue':
+        return Colors.blue;
+      case 'green':
+        return Colors.green;
+      case 'yellow':
+        return Colors.yellow;
+      case 'grey':
+        return Colors.grey;
+      case 'silver':
+        return Colors.grey.shade300;
+      case 'brown':
+        return Colors.brown;
+      case 'orange':
+        return Colors.orange;
+      case 'purple':
+        return Colors.purple;
+      case 'quicksand':
+        return Colors.brown.shade200;
+      default:
+        return Colors.transparent;
+    }
+  }
+  
 }
