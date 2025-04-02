@@ -124,18 +124,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 40),
                   
-                // Account management buttons
-                  _buildActionButton(
-                    'Change Password',
-                    Icons.lock_outline,
-                    () {
-                      // Navigate to change password page (to be implemented)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Change Password - Coming soon!'))
-                      );
-                    },
-                  ),
-                  
                   // Sign out button
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(

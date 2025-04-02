@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carlogix_mobile/pages/login/forgot_password.dart';
+import 'package:carlogix_mobile/widgets/password_field.dart';
 
 class Login extends StatelessWidget {
   Login({super.key});
@@ -138,18 +139,17 @@ class Login extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16,),
-        TextField(
-          obscureText: true,
+        PasswordField(
           controller: _passwordController,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xffF7F7F9) ,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(14)
-            )
-          ),
-        )
+          labelText: 'Password',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your password';
+            }
+            return null;
+          },
+          textInputAction: TextInputAction.done,
+        ),
       ],
     );
   }
