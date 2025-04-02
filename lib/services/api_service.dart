@@ -522,7 +522,7 @@ Future<Map<String, dynamic>> requestPasswordReset(String email) async {
 Future<Map<String, dynamic>> resetPassword(String token, String newPassword) async {
   try {
     final response = await http.post(
-      Uri.parse('$baseUrl/forgot-password/$token'), // Match the API endpoint
+      Uri.parse('$baseUrl/reset-password/$token'), // Match the API endpoint
       headers: {
         'Content-Type': 'application/json',
       },
