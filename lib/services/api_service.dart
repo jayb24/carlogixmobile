@@ -475,4 +475,91 @@ class ApiService {
       return {'success': false, 'error': e.toString()};
     }
   }
+
+// Request a password reset email
+Future<Map<String, dynamic>> requestPasswordReset(String email) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/forgot-password'), // Updated path to match your API
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'email': email}),
+    );
+    
+    print('Password reset request status: ${response.statusCode}');
+    print('Password reset request body: ${response.body}');
+    
+    if (response.body.isEmpty) {
+      return {'success': false, 'error': 'Empty response from server'};
+    }
+    
+    try {
+      final data = json.decode(response.body);
+      
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'message': data['message'] ?? 'Password reset email sent'};
+      } else {
+        return {
+          'success': false, 
+          'error': data['error'] ?? 'Failed to send password reset email',
+        };
+      }
+    } catch (e) {
+      print('Error parsing JSON response: $e');
+      return {
+        'success': false, 
+        'error': 'Server returned invalid response. Status: ${response.statusCode}'
+      };
+    }
+  } catch (e) {
+    print('Error requesting password reset: $e');
+    return {'success': false, 'error': 'Network error. Please try again.'};
+  }
+}
+
+// Add method to reset password with token
+Future<Map<String, dynamic>> resetPassword(String token, String newPassword) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/forgot-password/$token'), // Match the API endpoint
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'newPassword': newPassword,
+      }),
+    );
+    
+    print('Reset password response status: ${response.statusCode}');
+    print('Reset password response body: ${response.body}');
+    
+    if (response.body.isEmpty) {
+      return {'success': false, 'error': 'Empty response from server'};
+    }
+    
+    try {
+      final data = json.decode(response.body);
+      
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {'success': true, 'message': data['message'] ?? 'Password reset successfully'};
+      } else {
+        return {
+          'success': false, 
+          'error': data['error'] ?? 'Failed to reset password',
+        };
+      }
+    } catch (e) {
+      print('Error parsing JSON response: $e');
+      return {
+        'success': false, 
+        'error': 'Server returned invalid response. Status: ${response.statusCode}'
+      };
+    }
+  } catch (e) {
+    print('Error resetting password: $e');
+    return {'success': false, 'error': 'Network error. Please try again.'};
+  }
+}
+
 }

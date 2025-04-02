@@ -3,6 +3,7 @@ import 'package:carlogix_mobile/services/auth_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:carlogix_mobile/pages/login/forgot_password.dart';
 
 class Login extends StatelessWidget {
   Login({super.key});
@@ -54,6 +55,27 @@ class Login extends StatelessWidget {
                _emailAddress(),
                const SizedBox(height: 20),
                _password(),
+               Align(
+                 alignment: Alignment.centerRight,
+                 child: TextButton(
+                   onPressed: () {
+                     showDialog(
+                       context: context,
+                       builder: (BuildContext context) => const ForgotPasswordDialog(),
+                     );
+                   },
+                   child: Text(
+                     'Forgot Password?',
+                     style: GoogleFonts.raleway(
+                       textStyle: TextStyle(
+                         color: const Color.fromARGB(255, 219, 21, 21),
+                         fontSize: 14,
+                       ),
+                     ),
+                   ),
+                 ),
+               ),
+               const SizedBox(height: 16),
                const SizedBox(height: 50),
                _signin(context),
             ],
